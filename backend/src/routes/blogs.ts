@@ -85,7 +85,17 @@ blogRouter.get("/:id" ,async(c)=>{
         const post = await prisma.post.findUnique({
             where:{
                 id:c.req.param('id'),
-            }      
+            },     
+            select:{
+                id:true,
+                title:true,
+                content:true,
+                author:{
+                    select:{
+                        name:true
+                    }
+                }
+            } 
         });
         return c.json({post});
       } catch (error) {
@@ -94,13 +104,24 @@ blogRouter.get("/:id" ,async(c)=>{
       }
 })
 
-blogRouter.get('/',async(c)=>{
+blogRouter.get('/bulk',async(c)=>{
     const prisma=new PrismaClient({
         datasourceUrl:c.env.DATABASE_URL
     }).$extends(withAccelerate())
 
     try {
-        const posts=await prisma.post.findMany()
+        const posts=await prisma.post.findMany({
+            select:{
+                title:true,
+                content:true,
+                id:true,
+                author:{
+                    select:{
+                        name:true
+                    }
+                }
+            }
+        })
 
         return c.json({posts});
     } catch (error) {
