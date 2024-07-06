@@ -13,10 +13,15 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
     });
 
     async function sendRequest() {
+        console.log(import.meta.env.VITE_API_URL)
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/v1/user/${type === "signup" ? "signup" : "signin"}`, postInputs);
-            const jwt = response.data;
-            localStorage.setItem("token", jwt);
+            
+            const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/user/${type === "signup" ? "signup" : "signin"}`, postInputs);
+            const jwt = response.data.token;
+            const userName=response.data.name;
+            localStorage.setItem("token", `Bearer ${jwt}`);
+            localStorage.setItem("userName",userName)
+            localStorage.setItem("userId",response.data.id)
             navigate("/blogs");
         } catch(e) {
             alert("Error while signing up")
@@ -39,13 +44,13 @@ export const Auth = ({ type }: { type: "signup" | "signin" }) => {
                     </div>
                 </div>
                 <div className="pt-8">
-                    {type === "signup" ? <LabelledInput label="Name" placeholder="Harkirat Singh..." onChange={(e) => {
+                    {type === "signup" ? <LabelledInput label="Name" placeholder="Aditya Pandey..." onChange={(e) => {
                         setPostInputs({
                             ...postInputs,
                             name: e.target.value
                         })
                     }} /> : null}
-                    <LabelledInput label="Username" placeholder="harkirat@gmail.com" onChange={(e) => {
+                    <LabelledInput label="Username" placeholder="aditya@gmail.com" onChange={(e) => {
                         setPostInputs({
                             ...postInputs,
                             email: e.target.value

@@ -44,7 +44,7 @@ blogRouter.post('/',async(c)=>{
       }
 })
 
-blogRouter.put("/", async(c)=>{
+blogRouter.put('/', async(c)=>{
     const prisma=new PrismaClient({
         datasourceUrl:c.env.DATABASE_URL
       }).$extends(withAccelerate())
@@ -75,7 +75,36 @@ blogRouter.put("/", async(c)=>{
       }
 })
 
-blogRouter.get("/:id" ,async(c)=>{
+blogRouter.get('/bulk',async(c)=>{
+
+    const prisma=new PrismaClient({
+        datasourceUrl:c.env.DATABASE_URL
+    }).$extends(withAccelerate())
+
+    try {
+        const posts=await prisma.post.findMany({
+            select:{
+                title:true,
+                content:true,
+                id:true,
+                author:{
+                    select:{
+                        id:true,
+                        name:true
+                    }
+                }
+            }
+        })
+
+        
+        return c.json({posts});
+    } catch (error) {
+        c.status(500)
+        return c.text("Something wrong with the server")
+    }
+})
+
+blogRouter.get('/:id' ,async(c)=>{
     const prisma=new PrismaClient({
         datasourceUrl:c.env.DATABASE_URL
       }).$extends(withAccelerate())
@@ -92,6 +121,7 @@ blogRouter.get("/:id" ,async(c)=>{
                 content:true,
                 author:{
                     select:{
+                        id:true,
                         name:true
                     }
                 }
@@ -102,31 +132,5 @@ blogRouter.get("/:id" ,async(c)=>{
         c.status(500)
         return c.text("some error")
       }
-})
-
-blogRouter.get('/bulk',async(c)=>{
-    const prisma=new PrismaClient({
-        datasourceUrl:c.env.DATABASE_URL
-    }).$extends(withAccelerate())
-
-    try {
-        const posts=await prisma.post.findMany({
-            select:{
-                title:true,
-                content:true,
-                id:true,
-                author:{
-                    select:{
-                        name:true
-                    }
-                }
-            }
-        })
-
-        return c.json({posts});
-    } catch (error) {
-        c.status(500)
-        return c.text("Something wrong with the server")
-    }
 })
 
